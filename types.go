@@ -267,6 +267,10 @@ type performBegin struct {
 	// MUST be set to the channel on which the remote session sent the begin.
 	RemoteChannel uint16
 
+	// RemoteChannelMissing is true if the  RemoteChannel field is missing rather than
+	// set to 0.
+	RemoteChannelMissing bool
+
 	// the transfer-id of the first transfer id the sender will send
 	NextOutgoingID uint32 // required, sequence number http://www.ietf.org/rfc/rfc1982.txt
 
@@ -301,10 +305,14 @@ type performBegin struct {
 func (b *performBegin) frameBody() {}
 
 func (b *performBegin) String() string {
-	return fmt.Sprintf("Begin{RemoteChannel: %d, NextOutgoingID: %d, IncomingWindow: %d, "+
+	remoteChannel := "<null>"
+	if !b.RemoteChannelMissing {
+		remoteChannel = strconv.Itoa(int(b.RemoteChannel))
+	}
+	return fmt.Sprintf("Begin{RemoteChannel: %v, NextOutgoingID: %d, IncomingWindow: %d, "+
 		"OutgoingWindow: %d, HandleMax: %d, OfferedCapabilities: %v, DesiredCapabilities: %v, "+
 		"Properties: %v}",
-		b.RemoteChannel,
+		remoteChannel,
 		b.NextOutgoingID,
 		b.IncomingWindow,
 		b.OutgoingWindow,
@@ -317,7 +325,7 @@ func (b *performBegin) String() string {
 
 func (b *performBegin) marshal(wr *buffer) error {
 	return marshalComposite(wr, typeCodeBegin, []marshalField{
-		{value: &b.RemoteChannel, omit: b.RemoteChannel == 0},
+		{value: &b.RemoteChannel, omit: b.RemoteChannelMissing},
 		{value: &b.NextOutgoingID, omit: false},
 		{value: &b.IncomingWindow, omit: false},
 		{value: &b.OutgoingWindow, omit: false},
@@ -330,7 +338,7 @@ func (b *performBegin) marshal(wr *buffer) error {
 
 func (b *performBegin) unmarshal(r *buffer) error {
 	return unmarshalComposite(r, typeCodeBegin, []unmarshalField{
-		{field: &b.RemoteChannel},
+		{field: &b.RemoteChannel, handleNull: func() error { b.RemoteChannelMissing = true; return nil }},
 		{field: &b.NextOutgoingID, handleNull: func() error { return errorNew("Begin.NextOutgoingID is required") }},
 		{field: &b.IncomingWindow, handleNull: func() error { return errorNew("Begin.IncomingWindow is required") }},
 		{field: &b.OutgoingWindow, handleNull: func() error { return errorNew("Begin.OutgoingWindow is required") }},

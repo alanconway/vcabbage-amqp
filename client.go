@@ -128,10 +128,11 @@ func (c *Client) NewSession(opts ...SessionOption) (*Session, error) {
 
 	// send Begin to server
 	begin := &performBegin{
-		NextOutgoingID: 0,
-		IncomingWindow: s.incomingWindow,
-		OutgoingWindow: s.outgoingWindow,
-		HandleMax:      s.handleMax,
+		RemoteChannelMissing: true, // Different from RemoteChannel == 0
+		NextOutgoingID:       0,
+		IncomingWindow:       s.incomingWindow,
+		OutgoingWindow:       s.outgoingWindow,
+		HandleMax:            s.handleMax,
 	}
 	debug(1, "TX: %s", begin)
 	s.txFrame(begin, nil)
