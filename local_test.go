@@ -15,7 +15,7 @@ import (
 func TestDial_IPV6(t *testing.T) {
 	c, err := amqp.Dial("amqp://localhost")
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	c.Close()
 
