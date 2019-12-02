@@ -3,6 +3,7 @@
 package amqp_test
 
 import (
+	"context"
 	"net"
 	"testing"
 
@@ -12,11 +13,12 @@ import (
 // Tests that require a local broker running on the standard AMQP port.
 
 func TestDial_IPV6(t *testing.T) {
-	if c, err := amqp.Dial("amqp://localhost"); err != nil {
-		t.Skip("can't connect to local AMQP server")
-	} else {
-		c.Close()
+	c, err := amqp.Dial("amqp://localhost")
+	if err != nil {
+		t.Error(err)
 	}
+	c.Close()
+
 	l, err := net.Listen("tcp6", "[::]:0")
 	if err != nil {
 		t.Skip("ipv6 not supported")
@@ -33,5 +35,47 @@ func TestDial_IPV6(t *testing.T) {
 				c.Close()
 			}
 		})
+	}
+}
+
+func TestSendReceive(t *testing.T) {
+	c, err := amqp.Dial("amqp://")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	ssn, err := c.NewSession()
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, err := ssn.NewReceiver(amqp.LinkAddressDynamic())
+	if err != nil {
+		t.Fatal(err)
+	}
+	s, err := ssn.NewSender(amqp.LinkAddress(r.Address()))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	done := make(chan error)
+	go func() {
+		done <- s.Send(context.Background(), amqp.NewMessage([]byte("hello")))
+	}()
+	defer func() {
+		err := <-done
+		if err != nil {
+			t.Error(err)
+		}
+	}()
+
+	m, err := r.Receive(context.Background())
+	if err != nil {
+		t.Error(err)
+	} else {
+		m.Accept()
+	}
+	if "hello" != string(m.GetData()) {
+		t.Errorf("\"hello\" != %#v", m.GetData())
 	}
 }
