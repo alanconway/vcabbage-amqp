@@ -52,7 +52,6 @@ func ConnSASLPlain(username, password string) ConnOption {
 				InitialResponse: []byte("\x00" + username + "\x00" + password),
 				Hostname:        "",
 			}
-			debug(1, "TX: %s", init)
 			c.err = c.writeFrame(frame{
 				type_: frameTypeSASL,
 				body:  init,
@@ -82,7 +81,6 @@ func ConnSASLAnonymous() ConnOption {
 				Mechanism:       saslMechanismANONYMOUS,
 				InitialResponse: []byte("anonymous"),
 			}
-			debug(1, "TX: %s", init)
 			c.err = c.writeFrame(frame{
 				type_: frameTypeSASL,
 				body:  init,
