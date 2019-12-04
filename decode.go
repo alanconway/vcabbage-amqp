@@ -236,12 +236,12 @@ func unmarshal(r *buffer, i interface{}) error {
 			return err
 		}
 		*t = val
-	case *symbol:
+	case *Symbol:
 		s, err := readString(r)
 		if err != nil {
 			return err
 		}
-		*t = symbol(s)
+		*t = Symbol(s)
 	case *[]byte:
 		val, err := readBinary(r)
 		if err != nil {
@@ -282,7 +282,7 @@ func unmarshal(r *buffer, i interface{}) error {
 		return (*arrayBool)(t).unmarshal(r)
 	case *[]string:
 		return (*arrayString)(t).unmarshal(r)
-	case *[]symbol:
+	case *[]Symbol:
 		return (*arraySymbol)(t).unmarshal(r)
 	case *[][]byte:
 		return (*arrayBinary)(t).unmarshal(r)
@@ -296,7 +296,7 @@ func unmarshal(r *buffer, i interface{}) error {
 		return (*mapAnyAny)(t).unmarshal(r)
 	case *map[string]interface{}:
 		return (*mapStringAny)(t).unmarshal(r)
-	case *map[symbol]interface{}:
+	case *map[Symbol]interface{}:
 		return (*mapSymbolAny)(t).unmarshal(r)
 	case *deliveryState:
 		type_, err := peekMessageType(r.bytes())
@@ -705,7 +705,7 @@ Loop:
 	for key := range m {
 		switch key.(type) {
 		case string:
-		case symbol:
+		case Symbol:
 		default:
 			stringKeys = false
 			break Loop
@@ -718,7 +718,7 @@ Loop:
 			switch key := key.(type) {
 			case string:
 				mm[key] = value
-			case symbol:
+			case Symbol:
 				mm[string(key)] = value
 			}
 		}
@@ -804,7 +804,7 @@ func readAnyArray(r *buffer) (interface{}, error) {
 		err := (*arrayString)(&a).unmarshal(r)
 		return a, err
 	case typeCodeSym8, typeCodeSym32:
-		var a []symbol
+		var a []Symbol
 		err := (*arraySymbol)(&a).unmarshal(r)
 		return a, err
 	case typeCodeVbin8, typeCodeVbin32:
@@ -852,7 +852,7 @@ func readComposite(r *buffer) (interface{}, error) {
 
 	if compositeType > math.MaxUint8 {
 		// try as described type
-		var dt describedType
+		var dt DescribedType
 		err := dt.unmarshal(r)
 		return dt, err
 	}
@@ -933,7 +933,7 @@ func readComposite(r *buffer) (interface{}, error) {
 
 	default:
 		// try as described type
-		var dt describedType
+		var dt DescribedType
 		err := dt.unmarshal(r)
 		return dt, err
 	}

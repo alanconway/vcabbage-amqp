@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
-	"pack.ag/amqp/internal/testconn"
 	"strings"
 	"testing"
 	"time"
+
+	"pack.ag/amqp/internal/testconn"
 )
 
 // Known good challenges/responses taken following specification:
@@ -79,7 +80,7 @@ func TestConnSASLXOAUTH2AuthSuccess(t *testing.T) {
 		frame{
 			type_:   frameTypeSASL,
 			channel: 0,
-			body:    &saslMechanisms{Mechanisms: []symbol{saslMechanismXOAUTH2}},
+			body:    &saslMechanisms{Mechanisms: []Symbol{saslMechanismXOAUTH2}},
 		},
 		frame{
 			type_:   frameTypeSASL,
@@ -114,7 +115,7 @@ func TestConnSASLXOAUTH2AuthFail(t *testing.T) {
 		frame{
 			type_:   frameTypeSASL,
 			channel: 0,
-			body:    &saslMechanisms{Mechanisms: []symbol{saslMechanismXOAUTH2}},
+			body:    &saslMechanisms{Mechanisms: []Symbol{saslMechanismXOAUTH2}},
 		},
 		frame{
 			type_:   frameTypeSASL,
@@ -148,7 +149,7 @@ func TestConnSASLXOAUTH2AuthFailWithErrorResponse(t *testing.T) {
 		frame{
 			type_:   frameTypeSASL,
 			channel: 0,
-			body:    &saslMechanisms{Mechanisms: []symbol{saslMechanismXOAUTH2}},
+			body:    &saslMechanisms{Mechanisms: []Symbol{saslMechanismXOAUTH2}},
 		},
 		frame{
 			type_:   frameTypeSASL,
@@ -187,7 +188,7 @@ func TestConnSASLXOAUTH2AuthFailsAdditionalErrorResponse(t *testing.T) {
 		frame{
 			type_:   frameTypeSASL,
 			channel: 0,
-			body:    &saslMechanisms{Mechanisms: []symbol{saslMechanismXOAUTH2}},
+			body:    &saslMechanisms{Mechanisms: []Symbol{saslMechanismXOAUTH2}},
 		},
 		frame{
 			type_:   frameTypeSASL,
